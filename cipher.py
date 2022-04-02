@@ -34,6 +34,7 @@ class Cipher:
         citations = """
         1. https://www.youtube.com/watch?v=-KjFbTK1IIw
         2. https://justcryptography.com/playfair-implementation/
+        3. https://www.geeksforgeeks.org/playfair-cipher-with-examples/
         """
         return citations
 
@@ -45,11 +46,143 @@ class Cipher:
         # TODO: This function should return your psuedocode, neatly formatted
 
         # The encrypt pseudocode
-        pc = "insert the encryption pseudocode\n"
+        pc = """
+            encrypt(plaintext, password)
+                ciphertext <- ""
+                matrix <- generate_matrix(uppercase password)
+                message <- separate_dup_char(plaintext)
+                ciphertext_list <- playfair(uppercase message, matrix)
+                FOR element IN ciphertext_list
+                    append element to string ciphertext
+                RETURN ciphertext
+        """
 
         # The decrypt pseudocode
-        pc += "insert the decryption pseudocode\n"
+        pc += """
+            decrypt()
+                plaintext = ""
+                matrix = self.generate_matrix(uppercase password)
+                encrypted_message = separate_dup_chars(ciphertext)
+                plaintext_list = playfair_reverse(uppercase encrypted_message, matrix)
+                FOR element IN plaintext_list:
+                    append element to string plaintext
+                RETURN plaintext
+        """
 
+        # The generate matrix psuedocode, responsible for encoding and decoding a message
+        pc += """
+            generate_matrix(password)
+                key <- password
+                matrix <- [
+                    [0, 0, 0, 0, 0]
+                    [0, 0, 0, 0, 0]
+                    [0, 0, 0, 0, 0]
+                    [0, 0, 0, 0, 0]
+                    [0, 0, 0, 0, 0]
+                ]
+
+                added_letters <- []
+                row_index <- 0
+                col_index <- 0
+
+                FOR letter IN key:
+                    IF letter NOT IN added_letters
+                        matrix[row_index][col_index] <- letter
+                        append letter TO added_letters
+                        row_index <- row_index add 1 if col_index IS 4 ELSE row_index
+                        col_index <- col_index add 1 if col_index IS NOT 4 else 0
+                    else:
+                        continue
+            
+                remaining_letters <- []
+                FOR num IN range(65(A), 91(Z))
+                    IF chr value of num IS 'J'
+                        continue
+                    ELSE IF chr value of num NOT IN added_letters
+                        append chr value of num TO remaining_letters
+
+                index <- 0
+                FOR i IN range(5)
+                    FOR j IN range(5)
+                        IF matrix[i][j] IS NOT 0
+                            continue
+                        ELSE
+                            matrix[i][j] <- remaining_letters[index]
+                            index add 1
+
+                return matrix
+        """
+
+        pc += """
+            separate_dup_chars(plaintext)
+                FOR index IN range(0, length of plaintext - 1, 2)
+                IF index < length of plaintext
+                    IF plaintext[index] == plaintext[index + 1]
+                        plaintext <- plaintext[index] + "X" + plaintext[index plus 1]
+        
+                IF length of plaintext modulo 2 IS NOT 0
+                    plaintext <- append "X" at end of plaintext
+                RETURN plaintext
+        """
+
+        pc += """
+            return_index(letter, matrix)
+                FOR row IN range(5)
+                    FOR col IN range(5)
+                        IF matrix[row][col] IS letter
+                            RETURN (row, col)
+        """
+
+        pc += """
+            playfair(message, matrix)
+                ciphertext <- []
+                FOR index IN range(0, length of message minus 1, 2)
+                    row1, col1 <- 0, 0
+                    row2, col2 <- 0, 0
+                    IF index < length of message
+                        row1, col1 <- return_index(message[index], matrix)
+                        row2, col2 <- return_index(message[index + 1], matrix)
+
+                    IF row1 EQUALS row2
+                        append matrix[row1][(col1 + 1) % 5] TO ciphertext
+                        append matrix[row2][(col2 + 1) % 5] TO ciphertext
+                    ELSE IF col1 EQUALS col2
+                        append matrix[(row1 + 1) % 5][col1] TO ciphertext
+                        append matrix[(row2 + 1) % 5][col2] TO ciphertext
+                    ELSE
+                        append matrix[row1][col2] TO ciphertext
+                        append matrix[row2][col1] TO ciphertext
+                RETURN ciphertext
+        """
+
+        pc += """
+            playfair_reverse(self, message, matrix):
+                plaintext <- []
+                FOR index IN range(0, length of message minus 1, 2)
+                    row1, col1 <- 0, 0
+                    row2, col2 <- 0, 0
+                    
+                    IF index < length of message
+                        row1, col1 <- return_index(message[index], matrix)
+                        row2, col2 <- return_index(message[index + 1], matrix)
+            
+                    IF row1 EQUALS row2
+                        col1 <- col1 minus 1 if col1 ABOVE 0 ELSE 4
+                        col2 <- col2 minus 1 if col2 ABOVE 0 ELSE 4
+                        append matrix[row1][col1] TO plaintext
+                        append matrix[row2][col2] TO plaintext
+    
+                    ELSE IF col1 EQUALS col2
+                        row1 <- row1 minus 1 if row1 ABOVE 0 ELSE 4
+                        row2 <- row2 minus 1 if row2 ABOVE 0 ELSE 4
+                        append matrix[row1][col1] TO plaintext
+                        append matrix[row2][col2] tTO plaintext
+                    
+                    ELSE
+                        append matrix[row1][col2] TO plaintext
+                        append matrix[row2][col1] TO plaintext
+                RETURN plaintext
+        """
         return pc
 
     ##########################################################################
@@ -116,8 +249,7 @@ class Cipher:
         
         # if plaintext has odd num of characters, append an X at the end
         if len(plaintext) % 2 != 0:
-            if len(plaintext) % 2 != 0:
-                plaintext = plaintext[:] + "X"
+            plaintext = plaintext[:] + "X"
         return plaintext
 
     # return index of current letter
@@ -163,12 +295,12 @@ class Cipher:
         matrix = self.generate_matrix(password.upper())
         message = self.separate_dup_chars(ciphertext)
         plaintext_list = self.playfair_reverse(message.upper(), matrix)
-        print(plaintext_list)
         for ele in plaintext_list:
             plaintext += ele
 
         return plaintext
 
+    # Identical process to playfair function, but reverse previous operations
     def playfair_reverse(self, message, matrix):
         plaintext = []
         for index in range(0, len(message) - 1, 2):
@@ -179,13 +311,13 @@ class Cipher:
                 row1, col1 = self.return_index(message[index], matrix)
                 row2, col2 = self.return_index(message[index + 1], matrix)
             
-            # If two letters are in the same row, replace them with values to the right
+            # If two letters are in the same row, replace them with values to the left
             if row1 == row2:
                 col1 = col1 - 1 if col1 > 0 else 4
                 col2 = col2 - 1 if col2 > 0 else 4
                 plaintext.append(matrix[row1][col1])
                 plaintext.append(matrix[row2][col2])
-            # If two letters are in the same column, replace them with values below
+            # If two letters are in the same column, replace them with values above
             elif col1 == col2:
                 row1 = row1 - 1 if row1 > 0 else 4
                 row2 = row2 - 1 if row2 > 0 else 4
