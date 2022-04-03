@@ -32,9 +32,26 @@ class Cipher:
     def get_cipher_citation(self):
         # TODO: This function should return your citation(s)
         citations = """
-        1. https://www.youtube.com/watch?v=-KjFbTK1IIw
-        2. https://justcryptography.com/playfair-implementation/
-        3. https://www.geeksforgeeks.org/playfair-cipher-with-examples/
+        1. https://learning.oreilly.com/library/view/express-learning-cryptography/9788131764527/chap03.xhtml
+            * ITL Education Solutions Limited
+            * Express Learning: Cryptography and Network Security
+            * Jan 2012
+        2. https://www.youtube.com/watch?v=-KjFbTK1IIw 
+            * Videos By Kevin
+            * Playfair Cipher 
+            * Mar 18, 2018
+        3. https://justcryptography.com/playfair-implementation/
+            * Just Cryptography (Rafael)
+            * How to implement the Playfair cipher in python? 
+            * N/A
+        4. https://www.geeksforgeeks.org/playfair-cipher-with-examples/ 
+            * Geeksforgeeks (AbhayBhat) 
+            * Playfair Cipher with Examples 
+            * Dec 24, 2021
+        5. https://dev.to/karanmunjani/encryption-using-playfair-cipher-in-python-24l4
+            * Karan-Munjani
+            * Playfair Cipher Encryption Program in Python
+            * Oct 3, 2021
         """
         return citations
 
@@ -127,6 +144,8 @@ class Cipher:
 
         pc += """
             return_index(letter, matrix)
+                IF letter EQUALS J
+                    LETTER <- 'I'
                 FOR row IN range(5)
                     FOR col IN range(5)
                         IF matrix[row][col] IS letter
@@ -254,6 +273,9 @@ class Cipher:
 
     # return index of current letter
     def return_index(self, letter, matrix):
+        # remember: J is not part of the list
+        if letter == 'J':
+            letter = 'I'
         for row in range(5):
             for col in range(5):
                 if matrix[row][col] == letter:
@@ -265,7 +287,7 @@ class Cipher:
             row1, col1 = 0, 0
             row2, col2 = 0, 0
             # don't reach into memory we don't have
-            if index < len(message):
+            if index < len(message) + 1:
                 row1, col1 = self.return_index(message[index], matrix)
                 row2, col2 = self.return_index(message[index + 1], matrix)
             
